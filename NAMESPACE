@@ -1,0 +1,3 @@
+export(Ts.estim)
+
+importFrom(survival, coxph, Surv, strata)

@@ -1,3 +1,8 @@
+export(ddim)
 export(Ts.estim)
-
-importFrom(survival, coxph, Surv, strata)
+importFrom(survival,cluster)
+importFrom(survival,coxph)
+importFrom(survival,strata)
+importFrom(survival,Surv)
+S3method(print,ddim)
+S3method(print,Ts.estim)

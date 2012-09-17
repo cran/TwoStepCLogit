@@ -15,17 +15,17 @@ shared <- function(formula, data){
   if (is.null(call$formula)) stop("a 'formula' argument is required")
   if (class(formula)!="formula") stop("the 'formula' argument must be a formula")
   ## covariables
-  if (!all(all.vars(formula) %in% c(data.name,colnames(data))))  # accepter data.name = accepter data$var ou data[,...] (même matrice)
+  if (!all(all.vars(formula) %in% c(data.name,colnames(data))))  # accepter data.name = accepter data$var ou data[,...] (mÃªme matrice)
     stop("variable names figuring in 'formula' should be found among column names of 'data'")
   formula_terms <- terms(formula, special=c("strata", "cluster"), data = data)
   info.cluster <- untangle.specials(formula_terms, 'cluster')
   if( length(info.cluster$vars) == 0) stop("the formula must include a cluster term")
   info.strata <- untangle.specials(formula_terms, 'strata')
   if( length(info.strata$vars) == 0) stop("the formula must include a strata term")
-  ## variable réponse
-  appel.update_nocs <- paste("update.formula(old=formula, new= ~ . -", info.cluster$vars, "-", info.strata$vars, "-1)") 
+  ## variable rÃ©ponse
+  appel.update_nocs <- paste("update.formula(old=formula, new= ~ . -", info.cluster$vars, "-", info.strata$vars, ")") 
   formula_nocs <- eval(parse(text=appel.update_nocs))
-  mf <- model.frame(formula_nocs, data=data, na.action=NULL)
+  mf <- model.frame(formula_nocs, data=data, na.action=NULL, drop.unused.levels=TRUE)
   y <- model.response(mf)
   if (is.null(y)) stop("a response variable must be given")
   if (!all(y %in% 0:1)) stop("the response variable can only take the values 0 and 1")
@@ -36,7 +36,7 @@ shared <- function(formula, data){
   if (grepl("+", info.cluster$vars, fixed=TRUE) || length(dim(var.cluster)) > 1) 
     stop("in 'formula', the cluster identifier must be a single variable")
   
-  # Sortie des résultats
+  # Sortie des rÃ©sultats
   out <- list(data=data, data.name=data.name, info.cluster=info.cluster, info.strata=info.strata, y=y, mm=mm, var.cluster=var.cluster)
   return(out)
 }
@@ -44,10 +44,10 @@ shared <- function(formula, data){
 
 tryCatch.W.E <- function(expr)
 { # Fonction pour stocker les erreurs et les warnings
-  # tirée de demo(error.catching), légèrement modifiée
+  # tirÃ©e de demo(error.catching), lÃ©gÃ¨rement modifiÃ©e
   W <- NULL
   w.handler <- function(w){ # warning handler
-    W <<- c(W, w$message) ## ma modif ici pour stocker tous les warnings plutôt que seulement le dernier
+    W <<- c(W, w$message) ## ma modif ici pour stocker tous les warnings plutÃ´t que seulement le dernier
     invokeRestart("muffleWarning")
   }
   e.handler <- function(e){ # error handler

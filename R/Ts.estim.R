@@ -79,22 +79,22 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   
   simplify <- function(label, data.name){
   # Fonction pour simplifier les noms de variables :
-    # Sous-fonctions utile pour conserver un seul élément d'un vecteur
+    # Sous-fonctions utile pour conserver un seul Ã©lÃ©ment d'un vecteur
     keeplast <- function(x) x[length(x)]
     keepsec <- function(x) if (length(x)>1) x[2] else x
-    # Pour enlever "data.name$" si présent
+    # Pour enlever "data.name$" si prÃ©sent
     label.split <- strsplit(label, split="$", fixed = TRUE)
     label <- unlist(lapply(label.split, keeplast))
-    # Si as.matrix est présent, les noms auront l'allure as.matrix(xxx)... : conserver seulement la fin ...
+    # Si as.matrix est prÃ©sent, les noms auront l'allure as.matrix(xxx)... : conserver seulement la fin ...
     label.split <- ifelse(grepl("as.matrix(", label, fixed=TRUE), strsplit(label, split=")", fixed = TRUE), label)
     label <- unlist(lapply(label.split, keeplast))
     # Pour conserver seulement ... dans "data.name[, \"...\"]"
     label.split <- strsplit(label, split="\"", fixed = TRUE)
     label <- unlist(lapply(label.split, keepsec))
-    # S'il y a encore "[", c'est qu'il y a un numéro de colonne,
+    # S'il y a encore "[", c'est qu'il y a un numÃ©ro de colonne,
     # je veux le remplacer par le nom de la colonne, ci celui-ci existe
     test <- paste("!(is.null(colnames(", data.name, ")) || all(colnames(", data.name, ") == \"\"))")
-    # pour tester si les noms de colonne sont NULL ou tous égaux à une chaîne de caractères vide
+    # pour tester si les noms de colonne sont NULL ou tous Ã©gaux Ã  une chaÃ®ne de caractÃ¨res vide
     if (eval(parse(text = test))) {
       label_m <- sub(data.name, paste("colnames(", data.name, ")", sep=""), label, fixed=TRUE)
       label_m <- sub(",", "", label_m, fixed=TRUE)
@@ -105,7 +105,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   }  
   
   ########################################################################
-  # Validation des arguments et création de variables
+  # Validation des arguments et crÃ©ation de variables
   
   # Validation des arguments formula et data
   data.name <- info.cluster <- info.strata <- y <- mm <- var.cluster <- NULL
@@ -115,26 +115,27 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   out.shared <- eval(scall)
   for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]])  
   
-  # Création des variables covar.labels et p
-  if (ncol(mm)==0) stop("at least one covariate must be included in the model")  
+  # CrÃ©ation des variables covar.labels et p
   covar.labels <- dimnames(mm)[[2]]
+  covar.labels <- covar.labels[covar.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si prÃ©sent
+  if (length(covar.labels)==0) stop("at least one covariate must be included in the model")
   covar.labels <- simplify(covar.labels, data.name)
   p <- length(covar.labels)  # number of beta coefficients
   
-  # Créations de variables relatives aux clusters
+  # CrÃ©ations de variables relatives aux clusters
   Clusters <- unique(var.cluster)  # cluster identification
   k <- length(Clusters)  # number of clusters
     
-  # Validation de l'argument 'random' et création des variables random.labels, rpos et q
+  # Validation de l'argument 'random' et crÃ©ation des variables random.labels, rpos et q
   if (is.null(call$random)) {
     random.labels <- covar.labels
     rpos <- 1:length(covar.labels)
   } else {
     if (class(random)!="formula") stop("the 'random' argument must be a formula")
-    random_noi <- update.formula(old=random, new = ~ . - 1)
-    mfr <- model.frame(random_noi, data=data, na.action=NULL)
-    mmr <- model.matrix(random_noi, data=mfr)
+    mfr <- model.frame(random, data=data, na.action=NULL, drop.unused.levels=TRUE)
+    mmr <- model.matrix(random, data=mfr)
     random.labels <- dimnames(mmr)[[2]]
+    random.labels <- random.labels[random.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si prÃ©sent
     if (length(random.labels) == 0) stop("at least one covariate must have a random coefficient")
     random.labels <- simplify(random.labels, data.name)
     if(!all(random.labels %in% covar.labels))
@@ -146,23 +147,23 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   ########################################################################
 
   
-  ### Pour ajuster le modèle de cox séparément par cluster
+  ### Pour ajuster le modÃ¨le de cox sÃ©parÃ©ment par cluster
   
-  # Étape 1 - Préparation pour les appels à coxph() :
+  # Ã‰tape 1 - PrÃ©paration pour les appels Ã  coxph() :
   method <- if (all.m.1) "efron" else "exact"
-  # Enlever de la formule le terme cluster et modifier la variable réponse
+  # Enlever de la formule le terme cluster et modifier la variable rÃ©ponse
   appel.formula <- paste("update.formula(old=formula, new=Surv(2-.,.) ~ . -",info.cluster$vars,")") 
   formula_coxph <- eval(parse(text=appel.formula))
   
-  # Étape 2 - appeler coxph avec la formule ci-dessus pour chaque cluster
+  # Ã‰tape 2 - appeler coxph avec la formule ci-dessus pour chaque cluster
   betas <- vector(length=k*p)  # vector of beta_{ij}, i=1,...,k, j=1,...,p
   R <- matrix(0, ncol=k*p, nrow=k*p)  # variance matrix of betas
   R.sim <- R
   coxph.warn <- vector(length=k, mode="list")
   names(coxph.warn) <- Clusters
   for(i in 1:k){
-    assign(data.name, data[var.cluster==Clusters[i], ])  ## ça remplace le jeu de données data complet par le
-                                                         ## sous jeu de données seulement le cluster traité
+    assign(data.name, data[var.cluster==Clusters[i], ])  ## Ã§a remplace le jeu de donnÃ©es data complet par le
+                                                         ## sous jeu de donnÃ©es seulement le cluster traitÃ©
     appel.coxph <- paste("coxph(",paste(deparse(formula_coxph),collapse=""),", data=",data.name,", method=method)",sep="")
     try.model.fit <- tryCatch.W.E(eval(parse(text=appel.coxph)))
     if (identical(class(try.model.fit$value), "erreur"))
@@ -171,7 +172,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
            "\nTo solve the problem, you should remove the problematic cluster or variables from the data set.", call.=FALSE)  
     model.fit <- try.model.fit$value
     if (!is.null(try.model.fit$warnings)) coxph.warn[[i]] <- try.model.fit$warnings  
-      # car affecter NULL à un élément d'une liste efface cet élément, je ne veux pas ça   
+      # car affecter NULL Ã  un Ã©lÃ©ment d'une liste efface cet Ã©lÃ©ment, je ne veux pas Ã§a   
     pos <- ((i-1)*p+1):(i*p)
     betas[pos] <- model.fit$coefficients
     R[pos,pos] <- model.fit$var 

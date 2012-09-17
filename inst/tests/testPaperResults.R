@@ -1,7 +1,6 @@
 context("Paper results")
 
 test_that("Results from table 2 of the paper are reproduced", {
-      data(bison)
       Tsout <- Ts.estim(formula = Y ~ biomass + I(biomass^2) + strata(Strata) + cluster(Cluster), 
                data = bison, all.m.1=FALSE, D="UN(1)")      
       expect_that(round(Tsout$beta,2), equals(c("biomass"=8.59, "I(biomass^2)"=-7.79)))

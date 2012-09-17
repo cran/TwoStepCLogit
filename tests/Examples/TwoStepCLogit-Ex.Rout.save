@@ -8,8 +8,6 @@ R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
 
-  Natural language support but running in an English locale
-
 R is a collaborative project with many contributors.
 Type 'contributors()' for more information and
 'citation()' on how to cite R or R packages in publications.
@@ -27,15 +25,26 @@ Loading required package: survival
 Loading required package: splines
 > 
 > assign(".oldSearch", search(), pos = 'CheckExEnv')
+> assign(".ExTimings", "TwoStepCLogit-Ex.timings", pos = 'CheckExEnv')
+> cat("name\tuser\tsystem\telapsed\n", file=get(".ExTimings", pos = 'CheckExEnv'))
+> assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   format(x[1L:3L])
++ },
++ pos = 'CheckExEnv')
+> 
 > cleanEx()
 > nameEx("Ts.estim")
 > ### * Ts.estim
 > 
 > flush(stderr()); flush(stdout())
 > 
+> assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: Ts.estim
 > ### Title: Two-step estimator
-> ### Aliases: print.Ts.estim Ts.estim
+> ### Aliases: Ts.estim print.Ts.estim
 > ### Keywords: models
 > 
 > ### ** Examples
@@ -110,12 +119,16 @@ biomass  6.189187  12.302650
 > 
 > 
 > 
+> 
+> assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> cat("Ts.estim", get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("bison")
 > ### * bison
 > 
 > flush(stderr()); flush(stdout())
 > 
+> assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: bison
 > ### Title: Bison data
 > ### Aliases: bison
@@ -191,12 +204,16 @@ I(biomass^2)   0.00000      48.44104
 > 
 > 
 > 
+> 
+> assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> cat("bison", get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("ddim")
 > ### * ddim
 > 
 > flush(stderr()); flush(stdout())
 > 
+> assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ddim
 > ### Title: Data dimension statistics
 > ### Aliases: ddim print.ddim
@@ -222,10 +239,13 @@ Total number of observations = 16818
 > 
 > 
 > 
+> 
+> assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> cat("ddim", get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > ### * <FOOTER>
 > ###
 > cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  6.16 0.02 6.27 NA NA 
+Time elapsed:  5.8 0.01 5.85 NA NA 
 > grDevices::dev.off()
 null device 
           1 

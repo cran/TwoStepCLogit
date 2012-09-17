@@ -1,6 +1,6 @@
 \name{Ts.estim}
-\alias{print.Ts.estim}
 \alias{Ts.estim}
+\alias{print.Ts.estim}
 \title{Two-step estimator}
 \usage{
   Ts.estim(formula, data, random, all.m.1 = FALSE,

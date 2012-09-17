@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{News for Package 'TwoStepCLogit'}
+\section{Changes in TwoStepCLogit version 1.2.1}{
+  \itemize{
+    \item Bug fix: Ts.estim() now works correctly with categorical covariates.
+          }
+}
 \section{Changes in TwoStepCLogit version 1.2}{
   \itemize{
     \item The handling of errors from coxph() has been changed in order to identify 

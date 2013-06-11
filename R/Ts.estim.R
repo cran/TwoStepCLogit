@@ -41,8 +41,7 @@
 #'                            produce any warnings for that cluster. }
 #' @return \item{Call}{ The function call.}
 #' 
-#' @author Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie
-#' Baillargeon
+#' @author Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie Baillargeon
 #' @references Craiu, R.V., Duchesne, T., Fortin, D. and Baillargeon, S.
 #' (2011), Conditional Logistic Regression with Longitudinal Follow-up and
 #' Individual-Level Random Coefficients: A Stable and Efficient Two-Step
@@ -75,7 +74,7 @@
 #' Fit
 Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=2000, tole=0.000001){
   
-  call <- scall <- match.call()
+  call <- match.call()
   
   simplify <- function(label, data.name){
   # Fonction pour simplifier les noms de variables :
@@ -108,12 +107,12 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   # Validation des arguments et création de variables
   
   # Validation des arguments formula et data
-  data.name <- info.cluster <- info.strata <- y <- mm <- var.cluster <- NULL
-  sargs <- match(c("formula", "data"), names(scall), 0L)
-  scall <- scall[c(1L, sargs)]
-  scall[[1L]] <- as.name("shared")
-  out.shared <- eval(scall)
-  for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]])  
+  if (is.null(call$data)) stop("a 'data' argument is required", call. = FALSE)
+  if (is.null(call$formula)) stop("a 'formula' argument is required", call. = FALSE)
+  data.name <- deparse(call$data)
+  out.shared <- shared(formula = formula, data=data, data.name=data.name)
+  info.cluster <- info.strata <- y <- mm <- var.cluster <- NULL
+  for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]]) 
   
   # Création des variables covar.labels et p
   covar.labels <- dimnames(mm)[[2]]
@@ -124,8 +123,26 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   
   # Créations de variables relatives aux clusters
   Clusters <- unique(var.cluster)  # cluster identification
-  k <- length(Clusters)  # number of clusters
-    
+  k <- length(Clusters)  # number of clusters   
+  
+  # Génération d'erreurs informatives si une variable prend une valeur constante 
+  # à l'intérieur de toutes les strates d'au moins un cluster :
+  var.strata <- eval(parse(text=info.strata$vars), envir=data)  
+  mm_noint <- mm[, colnames(mm) != "(Intercept)", drop=FALSE]
+  testvariance <- aggregate(mm_noint, list(cluster = var.cluster, strata = var.strata), var, na.rm = TRUE)
+  testsumvariance <- aggregate(testvariance[, -(1:2), drop=FALSE], list(cluster = testvariance[, "cluster"]), sum, na.rm = TRUE)
+  freq0var <- colSums(testsumvariance[, -1, drop=FALSE] == 0)
+  probvar <- names(freq0var)[freq0var>0] 
+  if (length(probvar)>0){
+    # Reproduit le code de la section 1.8 du manuel R Writing R extensions
+    varlist <- paste(sQuote(probvar), collapse = ", ")
+    msg <- sprintf(ngettext(length(probvar),
+                            "the model cannot be fitted because the value of variable %s remains constant within all strata of at least one cluster",
+                            "the model cannot be fitted because the value of variables %s remains constant within all strata of at least one cluster",), 
+                   varlist)
+    stop(msg)
+  }
+
   # Validation de l'argument 'random' et création des variables random.labels, rpos et q
   if (is.null(call$random)) {
     random.labels <- covar.labels
@@ -198,6 +215,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     iterations <- 0
     abs.error <- 99999
     # E & M steps ... stops when itermax reach or tole reached
+    
     while((iterations < itermax)*(abs.error>tole)){
       D.0 <- diag(rep(eta.0,k))
       MMRM.inv <- M%*%solve(t(M)%*%RR%*%M)
@@ -259,7 +277,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   
   names(BetaWLS.simREML) <- names(se) <- rownames(D.sim.block) <- colnames(D.sim.block) <- covar.labels
   r.effect <- matrix(Mu,byrow=TRUE,ncol=q)
-  rownames(r.effect) <- 1:k
+  rownames(r.effect) <- Clusters
   colnames(r.effect) <- random.labels
   outp <- list(beta=c(BetaWLS.simREML),se=se,D=D.sim.block,r.effect=r.effect,coxph.warn=coxph.warn,call=call)
   class(outp) <- "Ts.estim"

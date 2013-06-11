@@ -1,5 +1,16 @@
 \name{NEWS}
 \title{News for Package 'TwoStepCLogit'}
+\section{Changes in TwoStepCLogit version 1.2.2}{
+  \itemize{
+    \item The rownames of the output matrix r.effects from Ts.estim() now identify
+          the clusters.
+    \item Test files and some files related to RStudio were removed from the source files.
+    \item Bug fix: the name of the data file can now be the name of a function present
+          in the search path.
+    \item A meaningful error message is now returned if the value of a covariate in the
+          formula remains constant within all strata of at least one cluster.
+          }
+}
 \section{Changes in TwoStepCLogit version 1.2.1}{
   \itemize{
     \item Bug fix: Ts.estim() now works correctly with categorical covariates.

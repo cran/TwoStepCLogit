@@ -24,16 +24,16 @@
 #' dimstat
 ddim <- function(formula, data){
   
-  scall <- match.call()
+  call <- match.call()
   
   # Validation des arguments formula et data
-  data.name <- info.cluster <- mm <- NULL # inutilisées dans ddim(), mais dans la sortie de shared car utile à Ts.estim()
+  if (is.null(call$data)) stop("a 'data' argument is required", call. = FALSE)
+  if (is.null(call$formula)) stop("a 'formula' argument is required", call. = FALSE)
+  data.name <- deparse(call$data)
+  out.shared <- shared(formula = formula, data=data, data.name=data.name)
+  info.cluster <- mm <- NULL # inutilisées dans ddim(), mais dans la sortie de shared car utile à Ts.estim()
   info.strata <- y <- var.cluster <- NULL
-  sargs <- match(c("formula", "data"), names(scall), 0L)
-  scall <- scall[c(1L, sargs)]
-  scall[[1L]] <- as.name("shared")
-  out.shared <- eval(scall)
-  for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]])  
+  for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]]) 
   
   # Pour retirer l'information sur les strates
   Ts.strata <- function(x){x}  ## genre de fonction strata seulement pour la fonction Ts.estim car la fonction strata 

@@ -11,8 +11,8 @@
 }
 \details{
   \tabular{ll}{ Package: \tab TwoStepCLogit\cr Type: \tab
-  Package\cr Version: \tab 1.2.1\cr Date: \tab
-  2012-09-17\cr License: \tab GPL-2\cr }
+  Package\cr Version: \tab 1.2.2\cr Date: \tab
+  2013-06-11\cr License: \tab GPL-2\cr }
 }
 \author{
   Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie

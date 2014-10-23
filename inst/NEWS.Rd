@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{News for Package 'TwoStepCLogit'}
+\section{Changes in TwoStepCLogit version 1.2.3}{
+  \itemize{
+    \item Bug fix: Ts.estim() now works correctly when called inside another function.
+          }
+}
 \section{Changes in TwoStepCLogit version 1.2.2}{
   \itemize{
     \item The rownames of the output matrix r.effects from Ts.estim() now identify

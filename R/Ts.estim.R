@@ -50,7 +50,7 @@
 #' @seealso \code{\link{ddim}}
 #' @keywords models
 #' @export
-#' @importFrom survival coxph Surv strata cluster
+#' @importFrom survival coxph Surv strata cluster untangle.specials
 #' @examples
 #' data(bison)
 #' 
@@ -76,7 +76,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   
   call <- match.call()
   
-  simplify <- function(label, data.name){
+  simplify <- function(label, data, data.name){
   # Fonction pour simplifier les noms de variables :
     # Sous-fonctions utile pour conserver un seul élément d'un vecteur
     keeplast <- function(x) x[length(x)]
@@ -92,10 +92,10 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     label <- unlist(lapply(label.split, keepsec))
     # S'il y a encore "[", c'est qu'il y a un numéro de colonne,
     # je veux le remplacer par le nom de la colonne, ci celui-ci existe
-    test <- paste("!(is.null(colnames(", data.name, ")) || all(colnames(", data.name, ") == \"\"))")
+    test <- "!(is.null(colnames(data)) || all(colnames(data) == \"\"))"
     # pour tester si les noms de colonne sont NULL ou tous égaux à une chaîne de caractères vide
     if (eval(parse(text = test))) {
-      label_m <- sub(data.name, paste("colnames(", data.name, ")", sep=""), label, fixed=TRUE)
+      label_m <- sub(data.name, "colnames(data)", label, fixed=TRUE)
       label_m <- sub(",", "", label_m, fixed=TRUE)
       submit <- function(x) if (grepl("colnames", x, fixed=TRUE)) eval(parse(text=x)) else x
       label <- unlist(lapply(label_m, submit))
@@ -118,7 +118,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   covar.labels <- dimnames(mm)[[2]]
   covar.labels <- covar.labels[covar.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si présent
   if (length(covar.labels)==0) stop("at least one covariate must be included in the model")
-  covar.labels <- simplify(covar.labels, data.name)
+  covar.labels <- simplify(covar.labels, data, data.name)
   p <- length(covar.labels)  # number of beta coefficients
   
   # Créations de variables relatives aux clusters
@@ -154,7 +154,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     random.labels <- dimnames(mmr)[[2]]
     random.labels <- random.labels[random.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si présent
     if (length(random.labels) == 0) stop("at least one covariate must have a random coefficient")
-    random.labels <- simplify(random.labels, data.name)
+    random.labels <- simplify(random.labels, data, data.name)
     if(!all(random.labels %in% covar.labels))
       stop("variables in 'random' must also be in 'formula'")
     rpos <- match(random.labels, covar.labels)

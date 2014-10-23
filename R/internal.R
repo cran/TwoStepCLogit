@@ -12,8 +12,6 @@ shared <- function(formula, data, data.name){
   # Validation de l'argument 'formula'
   if (class(formula)!="formula") stop("the 'formula' argument must be a formula", call. = FALSE)
   ## covariables
-  if (!all(all.vars(formula) %in% c(data.name,colnames(data))))  # accepter data.name = accepter data$var ou data[,...] (même matrice)
-    stop("variable names figuring in 'formula' should be found among column names of 'data'", call. = FALSE)
   formula_terms <- terms(formula, special=c("strata", "cluster"), data = data)
   info.cluster <- untangle.specials(formula_terms, 'cluster')
   if( length(info.cluster$vars) == 0) stop("the formula must include a cluster term", call. = FALSE)

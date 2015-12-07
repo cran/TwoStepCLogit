@@ -1,4 +1,4 @@
-#' Data dimension statistics
+#' Data Dimension Statistics
 #' 
 #' Function that computes dimension statistics for a data set with clusters and strata
 #' and its \code{print} method.
@@ -18,8 +18,8 @@
 #' 
 #' @seealso \code{\link{Ts.estim}}
 #' @export
+#' @importFrom stats aggregate
 #' @examples
-#' data(bison)
 #' dimstat <- ddim(formula = Y ~ strata(Strata) + cluster(Cluster), data = bison)
 #' dimstat
 ddim <- function(formula, data){
@@ -31,25 +31,25 @@ ddim <- function(formula, data){
   if (is.null(call$formula)) stop("a 'formula' argument is required", call. = FALSE)
   data.name <- deparse(call$data)
   out.shared <- shared(formula = formula, data=data, data.name=data.name)
-  info.cluster <- mm <- NULL # inutilisées dans ddim(), mais dans la sortie de shared car utile à Ts.estim()
+  info.cluster <- mm <- NULL # inutilisees dans ddim(), mais dans la sortie de shared car utile a Ts.estim()
   info.strata <- y <- var.cluster <- NULL
   for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]]) 
   
   # Pour retirer l'information sur les strates
   Ts.strata <- function(x){x}  ## genre de fonction strata seulement pour la fonction Ts.estim car la fonction strata 
-  ## de survival n'est pas adéquate ici, à l'image de la fonction cluster de survival
+  ## de survival n'est pas adequate ici, a l'image de la fonction cluster de survival
   var.strata <- eval(parse(text=paste("Ts",info.strata$vars,sep=".")), envir=data)
   if (length(dim(var.strata)) > 1) stop("in 'formula', the stratum identifier must be a single variable")
   Sc <- tapply(var.strata, var.cluster, function(x){length(unique(x))})
   
-  # Pour retirer de l'info sur la dimension des données
+  # Pour retirer de l'info sur la dimension des donnees
   ncs <- aggregate(y, list(cluster=var.cluster, strata=var.strata), length)
   mcs <- aggregate(y, list(cluster=var.cluster, strata=var.strata), sum)
   Ystat <- cbind(ncs[, 1:2], "n"=ncs[, 3], "m"=mcs[, 3])
   Ystat <- Ystat[order(Ystat$cluster, Ystat$strata),]
   rownames(Ystat) <- NULL
   
-  # Sortie des résultats
+  # Sortie des resultats
   out <- list(Sc=Sc, Ystat=Ystat)
   class(out) <- "ddim"
   return(out)
@@ -61,6 +61,7 @@ ddim <- function(formula, data){
 #' @param x An object, produced by the \code{\link{ddim}} function, to print.
 #' @param \dots Further arguments to be passed to \code{print.default}. 
 #' @export
+#' @importFrom stats median
 "print.ddim" <- function(x, ...) { 
   cat("Number of clusters =",length(x$Sc))
   cat("\n\nNumbers of strata per cluster")

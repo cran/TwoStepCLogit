@@ -1,4 +1,4 @@
-#' Two-step estimator
+#' Two-Step Estimator
 #' 
 #' Function that computes the two-step estimator proposed in Craiu et al.
 #' (2011) and its \code{print} method.
@@ -30,6 +30,7 @@
 #' 
 #' @return \item{beta}{ A vector: the regression coefficients. } 
 #' @return \item{se}{ A vector: the regression coefficients' standard errors. } 
+#' @return \item{vcov}{ A matrix: the variance-covariance matrix of the regression coefficients. } 
 #' @return \item{D}{ A matrix: estimate of the between-cluster variance-covariance matrix of the regression coefficients (matrix D).}
 #' @return \item{r.effect}{ The random effect estimates. }
 #' @return \item{coxph.warn}{ A list of character string vectors. If the \code{\link{coxph}} 
@@ -51,10 +52,10 @@
 #' @keywords models
 #' @export
 #' @importFrom survival coxph Surv strata cluster untangle.specials
+#' @importFrom stats aggregate model.frame model.matrix model.response terms var
 #' @examples
-#' data(bison)
-#' 
 #' # Two ways for specifying the same model
+#' # Data: bison
 #' # Model: covariates forest, biomass and pmeadow
 #' # Random effects in front of forest and biomass
 #' # Main diagonal covariance structure for D (the default)
@@ -78,22 +79,22 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   
   simplify <- function(label, data, data.name){
   # Fonction pour simplifier les noms de variables :
-    # Sous-fonctions utile pour conserver un seul élément d'un vecteur
+    # Sous-fonctions utile pour conserver un seul element d'un vecteur
     keeplast <- function(x) x[length(x)]
     keepsec <- function(x) if (length(x)>1) x[2] else x
-    # Pour enlever "data.name$" si présent
+    # Pour enlever "data.name$" si present
     label.split <- strsplit(label, split="$", fixed = TRUE)
     label <- unlist(lapply(label.split, keeplast))
-    # Si as.matrix est présent, les noms auront l'allure as.matrix(xxx)... : conserver seulement la fin ...
+    # Si as.matrix est present, les noms auront l'allure as.matrix(xxx)... : conserver seulement la fin ...
     label.split <- ifelse(grepl("as.matrix(", label, fixed=TRUE), strsplit(label, split=")", fixed = TRUE), label)
     label <- unlist(lapply(label.split, keeplast))
     # Pour conserver seulement ... dans "data.name[, \"...\"]"
     label.split <- strsplit(label, split="\"", fixed = TRUE)
     label <- unlist(lapply(label.split, keepsec))
-    # S'il y a encore "[", c'est qu'il y a un numéro de colonne,
+    # S'il y a encore "[", c'est qu'il y a un numero de colonne,
     # je veux le remplacer par le nom de la colonne, ci celui-ci existe
     test <- "!(is.null(colnames(data)) || all(colnames(data) == \"\"))"
-    # pour tester si les noms de colonne sont NULL ou tous égaux à une chaîne de caractères vide
+    # pour tester si les noms de colonne sont NULL ou tous egaux a une chaine de caracteres vide
     if (eval(parse(text = test))) {
       label_m <- sub(data.name, "colnames(data)", label, fixed=TRUE)
       label_m <- sub(",", "", label_m, fixed=TRUE)
@@ -104,7 +105,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   }  
   
   ########################################################################
-  # Validation des arguments et création de variables
+  # Validation des arguments et creation de variables
   
   # Validation des arguments formula et data
   if (is.null(call$data)) stop("a 'data' argument is required", call. = FALSE)
@@ -114,19 +115,19 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   info.cluster <- info.strata <- y <- mm <- var.cluster <- NULL
   for(i in 1:length(out.shared)) assign(names(out.shared)[i],out.shared[[i]]) 
   
-  # Création des variables covar.labels et p
+  # Creation des variables covar.labels et p
   covar.labels <- dimnames(mm)[[2]]
-  covar.labels <- covar.labels[covar.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si présent
+  covar.labels <- covar.labels[covar.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si present
   if (length(covar.labels)==0) stop("at least one covariate must be included in the model")
   covar.labels <- simplify(covar.labels, data, data.name)
   p <- length(covar.labels)  # number of beta coefficients
   
-  # Créations de variables relatives aux clusters
+  # Creations de variables relatives aux clusters
   Clusters <- unique(var.cluster)  # cluster identification
   k <- length(Clusters)  # number of clusters   
   
-  # Génération d'erreurs informatives si une variable prend une valeur constante 
-  # à l'intérieur de toutes les strates d'au moins un cluster :
+  # Generation d'erreurs informatives si une variable prend une valeur constante 
+  # a l'interieur de toutes les strates d'au moins un cluster :
   var.strata <- eval(parse(text=info.strata$vars), envir=data)  
   mm_noint <- mm[, colnames(mm) != "(Intercept)", drop=FALSE]
   testvariance <- aggregate(mm_noint, list(cluster = var.cluster, strata = var.strata), var, na.rm = TRUE)
@@ -138,12 +139,12 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     varlist <- paste(sQuote(probvar), collapse = ", ")
     msg <- sprintf(ngettext(length(probvar),
                             "the model cannot be fitted because the value of variable %s remains constant within all strata of at least one cluster",
-                            "the model cannot be fitted because the value of variables %s remains constant within all strata of at least one cluster",), 
+                            "the model cannot be fitted because the value of variables %s remains constant within all strata of at least one cluster"), 
                    varlist)
     stop(msg)
   }
 
-  # Validation de l'argument 'random' et création des variables random.labels, rpos et q
+  # Validation de l'argument 'random' et creation des variables random.labels, rpos et q
   if (is.null(call$random)) {
     random.labels <- covar.labels
     rpos <- 1:length(covar.labels)
@@ -152,7 +153,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     mfr <- model.frame(random, data=data, na.action=NULL, drop.unused.levels=TRUE)
     mmr <- model.matrix(random, data=mfr)
     random.labels <- dimnames(mmr)[[2]]
-    random.labels <- random.labels[random.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si présent
+    random.labels <- random.labels[random.labels!="(Intercept)"]  # pour retirer le terme (Intercept) si present
     if (length(random.labels) == 0) stop("at least one covariate must have a random coefficient")
     random.labels <- simplify(random.labels, data, data.name)
     if(!all(random.labels %in% covar.labels))
@@ -164,23 +165,23 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   ########################################################################
 
   
-  ### Pour ajuster le modèle de cox séparément par cluster
+  ### Pour ajuster le modele de cox separement par cluster
   
-  # Étape 1 - Préparation pour les appels à coxph() :
+  # etape 1 - Preparation pour les appels a coxph() :
   method <- if (all.m.1) "efron" else "exact"
-  # Enlever de la formule le terme cluster et modifier la variable réponse
+  # Enlever de la formule le terme cluster et modifier la variable reponse
   appel.formula <- paste("update.formula(old=formula, new=Surv(2-.,.) ~ . -",info.cluster$vars,")") 
   formula_coxph <- eval(parse(text=appel.formula))
   
-  # Étape 2 - appeler coxph avec la formule ci-dessus pour chaque cluster
+  # etape 2 - appeler coxph avec la formule ci-dessus pour chaque cluster
   betas <- vector(length=k*p)  # vector of beta_{ij}, i=1,...,k, j=1,...,p
   R <- matrix(0, ncol=k*p, nrow=k*p)  # variance matrix of betas
   R.sim <- R
   coxph.warn <- vector(length=k, mode="list")
   names(coxph.warn) <- Clusters
   for(i in 1:k){
-    assign(data.name, data[var.cluster==Clusters[i], ])  ## ça remplace le jeu de données data complet par le
-                                                         ## sous jeu de données seulement le cluster traité
+    assign(data.name, data[var.cluster==Clusters[i], ])  ## ca remplace le jeu de donnees data complet par le
+                                                         ## sous jeu de donnees seulement le cluster traite
     appel.coxph <- paste("coxph(",paste(deparse(formula_coxph),collapse=""),", data=",data.name,", method=method)",sep="")
     try.model.fit <- tryCatch.W.E(eval(parse(text=appel.coxph)))
     if (identical(class(try.model.fit$value), "erreur"))
@@ -189,7 +190,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
            "\nTo solve the problem, you should remove the problematic cluster or variables from the data set.", call.=FALSE)  
     model.fit <- try.model.fit$value
     if (!is.null(try.model.fit$warnings)) coxph.warn[[i]] <- try.model.fit$warnings  
-      # car affecter NULL à un élément d'une liste efface cet élément, je ne veux pas ça   
+      # car affecter NULL a un element d'une liste efface cet element, je ne veux pas ca   
     pos <- ((i-1)*p+1):(i*p)
     betas[pos] <- model.fit$coefficients
     R[pos,pos] <- model.fit$var 
@@ -279,7 +280,8 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   r.effect <- matrix(Mu,byrow=TRUE,ncol=q)
   rownames(r.effect) <- Clusters
   colnames(r.effect) <- random.labels
-  outp <- list(beta=c(BetaWLS.simREML),se=se,D=D.sim.block,r.effect=r.effect,coxph.warn=coxph.warn,call=call)
+  outp <- list(beta = c(BetaWLS.simREML), se = se, vcov = Var.Beta.sim, D = D.sim.block, r.effect = r.effect,
+               coxph.warn = coxph.warn, call = call)
   class(outp) <- "Ts.estim"
   return(outp)  
 }

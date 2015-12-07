@@ -1,4 +1,4 @@
-#' Conditional logistic regression: A two-step estimation method
+#' Conditional Logistic Regression: A Two-Step Estimation Method
 #' 
 #' Conditional logistic regression with longitudinal follow up and
 #' individual-level random coefficients: A stable and efficient two-step
@@ -7,8 +7,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab TwoStepCLogit\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 1.2.3\cr 
-#' Date: \tab 2014-10-23\cr 
+#' Version: \tab 1.2.4\cr 
+#' Date: \tab 2014-12-07\cr 
 #' License: \tab GPL-2\cr 
 #' }
 #' 
@@ -26,7 +26,7 @@
 #' @keywords package
 NULL
 
-#' Bison data
+#' Bison Dataset
 #' 
 #' Bison data collected in Prince Albert National Park, Saskatchewan, Canada 
 #' (Craiu et al. 2011).

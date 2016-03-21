@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{News for Package 'TwoStepCLogit'}
+\section{Changes in TwoStepCLogit version 1.2.5}{
+  \itemize{
+    \item Use of a different approximation in the calculation of the asymptotic 
+          variance matrix in vcov that now gives non-zero asymptotic covariances. 
+          }
+}
 \section{Changes in TwoStepCLogit version 1.2.4}{
   \itemize{
     \item Ts.estim() now returns the variance-covariance matrix of the regression 

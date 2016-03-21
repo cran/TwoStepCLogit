@@ -276,12 +276,22 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
   BetaWLS.simREML <- Var.Beta.sim%*%t(Q)%*%solve(V.sim)%*%betas
   se <- sqrt(diag(Var.Beta.sim))
   
-  names(BetaWLS.simREML) <- names(se) <- rownames(D.sim.block) <- colnames(D.sim.block) <- covar.labels
+  # vcov is formed of the diagonal elements of Var.Beta.sim,
+  # but the covariances obtained below, which are non null
+  V.sim2 <- R + D.sim
+  vcov <- solve(t(Q)%*%solve(V.sim2)%*%Q)
+  diag(vcov) <- diag(Var.Beta.sim)
+  
   r.effect <- matrix(Mu,byrow=TRUE,ncol=q)
   rownames(r.effect) <- Clusters
   colnames(r.effect) <- random.labels
-  outp <- list(beta = c(BetaWLS.simREML), se = se, vcov = Var.Beta.sim, D = D.sim.block, r.effect = r.effect,
-               coxph.warn = coxph.warn, call = call)
+
+  names(BetaWLS.simREML) <- names(se) <- covar.labels
+  rownames(vcov) <- colnames(vcov) <- covar.labels
+  rownames(D.sim.block) <- colnames(D.sim.block) <- covar.labels
+
+  outp <- list(beta = c(BetaWLS.simREML), se = se, vcov = vcov, D = D.sim.block, 
+               r.effect = r.effect, coxph.warn = coxph.warn, call = call)
   class(outp) <- "Ts.estim"
   return(outp)  
 }

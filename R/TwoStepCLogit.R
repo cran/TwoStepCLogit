@@ -7,8 +7,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab TwoStepCLogit\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 1.2.4\cr 
-#' Date: \tab 2014-12-07\cr 
+#' Version: \tab 1.2.5\cr 
+#' Date: \tab 2016-03-19\cr 
 #' License: \tab GPL-2\cr 
 #' }
 #' 

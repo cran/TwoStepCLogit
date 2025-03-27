@@ -4,7 +4,8 @@
 \name{bison}
 \alias{bison}
 \title{Bison Dataset}
-\format{A data frame with 16818 observations on the following 10 variables.
+\format{
+A data frame with 16818 observations on the following 10 variables.
 \describe{ 
   \item{Cluster}{pair of animals (dyad) ID}
   \item{Strata}{stratum ID} 
@@ -17,7 +18,8 @@
                  (in \eqn{kg/m^2}) only at locations within meadows, 0 otherwise}
   \item{pmeadow}{continuous covariate: the proportion of meadow in a circular plot 
                  (700 m in radius) centered at the bison's location}
-}}
+}
+}
 \description{
 Bison data collected in Prince Albert National Park, Saskatchewan, Canada 
 (Craiu et al. 2011).
@@ -63,4 +65,3 @@ Individual-Level Random Coefficients: A Stable and Efficient Two-Step
 Estimation Method, \emph{Journal of Computational and Graphical Statistics}. \bold{20}(3), 767-784.
 }
 \keyword{datasets}
-

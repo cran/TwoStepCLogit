@@ -3,7 +3,7 @@
 #' Function that computes the two-step estimator proposed in Craiu et al.
 #' (2011) and its \code{print} method.
 #' 
-#' Calls \code{\link{coxph}} from the package \pkg{survival}.
+#' Calls \code{\link[survival]{coxph}} from the package \pkg{survival}.
 #' 
 #' @param formula A formula object, with the response on the left of a \code{~} operator, 
 #'                and the covariates on the right. The right hand side of the model must also 
@@ -33,12 +33,12 @@
 #' @return \item{vcov}{ A matrix: the variance-covariance matrix of the regression coefficients. } 
 #' @return \item{D}{ A matrix: estimate of the between-cluster variance-covariance matrix of the regression coefficients (matrix D).}
 #' @return \item{r.effect}{ The random effect estimates. }
-#' @return \item{coxph.warn}{ A list of character string vectors. If the \code{\link{coxph}} 
+#' @return \item{coxph.warn}{ A list of character string vectors. If the \code{\link[survival]{coxph}} 
 #'                            function generates one or more warnings when fitting the Cox
 #'                            model to a cluster, a copy of these warnings are stored in 
 #'                            \code{coxph.warn$Cluster_name} where \code{Cluster_name} is 
 #'                            the identification value for the cluster in the data set. 
-#'                            A \code{NULL} list element means that \code{\link{coxph}} did not 
+#'                            A \code{NULL} list element means that \code{\link[survival]{coxph}} did not 
 #'                            produce any warnings for that cluster. }
 #' @return \item{Call}{ The function call.}
 #' 
@@ -149,7 +149,7 @@ Ts.estim <- function(formula, data, random, all.m.1=FALSE, D="UN(1)", itermax=20
     random.labels <- covar.labels
     rpos <- 1:length(covar.labels)
   } else {
-    if (class(random)!="formula") stop("the 'random' argument must be a formula")
+    if (!inherits(random, what = "formula")) stop("the 'random' argument must be a formula")
     mfr <- model.frame(random, data=data, na.action=NULL, drop.unused.levels=TRUE)
     mmr <- model.matrix(random, data=mfr)
     random.labels <- dimnames(mmr)[[2]]

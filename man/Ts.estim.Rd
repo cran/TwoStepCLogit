@@ -5,8 +5,15 @@
 \alias{print.Ts.estim}
 \title{Two-Step Estimator}
 \usage{
-Ts.estim(formula, data, random, all.m.1 = FALSE, D = "UN(1)",
-  itermax = 2000, tole = 1e-06)
+Ts.estim(
+  formula,
+  data,
+  random,
+  all.m.1 = FALSE,
+  D = "UN(1)",
+  itermax = 2000,
+  tole = 1e-06
+)
 
 \method{print}{Ts.estim}(x, ...)
 }
@@ -55,12 +62,12 @@ before declaring convergence (default = 0.000001)}
 
 \item{r.effect}{ The random effect estimates. }
 
-\item{coxph.warn}{ A list of character string vectors. If the \code{\link{coxph}} 
+\item{coxph.warn}{ A list of character string vectors. If the \code{\link[survival]{coxph}} 
                            function generates one or more warnings when fitting the Cox
                            model to a cluster, a copy of these warnings are stored in 
                            \code{coxph.warn$Cluster_name} where \code{Cluster_name} is 
                            the identification value for the cluster in the data set. 
-                           A \code{NULL} list element means that \code{\link{coxph}} did not 
+                           A \code{NULL} list element means that \code{\link[survival]{coxph}} did not 
                            produce any warnings for that cluster. }
 
 \item{Call}{ The function call.}
@@ -70,7 +77,7 @@ Function that computes the two-step estimator proposed in Craiu et al.
 (2011) and its \code{print} method.
 }
 \details{
-Calls \code{\link{coxph}} from the package \pkg{survival}.
+Calls \code{\link[survival]{coxph}} from the package \pkg{survival}.
 }
 \examples{
 # Two ways for specifying the same model
@@ -93,9 +100,6 @@ Fit <- Ts.estim(formula = Y ~ forest  + biomass + pmeadow +
         random = ~ forest + biomass, D="UN")
 Fit
 }
-\author{
-Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie Baillargeon
-}
 \references{
 Craiu, R.V., Duchesne, T., Fortin, D. and Baillargeon, S.
 (2011), Conditional Logistic Regression with Longitudinal Follow-up and
@@ -106,5 +110,7 @@ Estimation Method, \emph{Journal of Computational and Graphical Statistics}.
 \seealso{
 \code{\link{ddim}}
 }
+\author{
+Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie Baillargeon
+}
 \keyword{models}
-

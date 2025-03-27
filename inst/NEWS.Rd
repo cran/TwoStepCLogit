@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{News for Package 'TwoStepCLogit'}
+\section{Changes in TwoStepCLogit version 1.2.6}{
+  \itemize{
+    \item Bug fix: Package anchors were added for Rd \link{} targets not in the package. 
+          }
+}
 \section{Changes in TwoStepCLogit version 1.2.5}{
   \itemize{
     \item Use of a different approximation in the calculation of the asymptotic 

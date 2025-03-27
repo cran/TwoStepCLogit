@@ -10,7 +10,7 @@ shared <- function(formula, data, data.name){
   if (grepl("(", data.name, fixed=TRUE)) stop("the 'data' argument must be an object, not a function call", call. = FALSE)
   
   # Validation de l'argument 'formula'
-  if (class(formula)!="formula") stop("the 'formula' argument must be a formula", call. = FALSE)
+  if (!inherits(formula, what = "formula")) stop("the 'formula' argument must be a formula", call. = FALSE)
   ## covariables
   formula_terms <- terms(formula, special=c("strata", "cluster"), data = data)
   info.cluster <- untangle.specials(formula_terms, 'cluster')

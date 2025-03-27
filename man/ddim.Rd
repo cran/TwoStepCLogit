@@ -41,4 +41,3 @@ dimstat
 \seealso{
 \code{\link{Ts.estim}}
 }
-

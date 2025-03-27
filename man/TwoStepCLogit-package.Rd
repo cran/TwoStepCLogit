@@ -2,8 +2,8 @@
 % Please edit documentation in R/TwoStepCLogit.R
 \docType{package}
 \name{TwoStepCLogit-package}
-\alias{TwoStepCLogit}
 \alias{TwoStepCLogit-package}
+\alias{TwoStepCLogit}
 \title{Conditional Logistic Regression: A Two-Step Estimation Method}
 \description{
 Conditional logistic regression with longitudinal follow up and
@@ -14,16 +14,10 @@ estimation method (see \code{\link{Ts.estim}}).
 \tabular{ll}{ 
 Package: \tab TwoStepCLogit\cr 
 Type: \tab Package\cr 
-Version: \tab 1.2.5\cr 
-Date: \tab 2016-03-19\cr 
+Version: \tab 1.2.6\cr 
+Date: \tab 2025-03-26\cr 
 License: \tab GPL-2\cr 
 }
-}
-\author{
-Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie
-Baillargeon
-
-Maintainer: Thierry Duchesne <thierry.duchesne@mat.ulaval.ca>
 }
 \references{
 Craiu, R.V., Duchesne, T., Fortin, D. and Baillargeon, S.
@@ -31,5 +25,10 @@ Craiu, R.V., Duchesne, T., Fortin, D. and Baillargeon, S.
 Individual-Level Random Coefficients: A Stable and Efficient Two-Step
 Estimation Method, \emph{Journal of Computational and Graphical Statistics}. \bold{20}(3), 767-784.
 }
-\keyword{package}
+\author{
+Radu V. Craiu, Thierry Duchesne, Daniel Fortin and Sophie
+Baillargeon
 
+Maintainer: Thierry Duchesne <thierry.duchesne@mat.ulaval.ca>
+}
+\keyword{package}
